@@ -107,3 +107,54 @@ export function isExactKnown(name: string): boolean {
 export function categoryOf(name: string): AppCategory {
   return matchApp(name).category;
 }
+
+/** Noms d'affichage des apps courantes (la clé normalisée n'a ni majuscules ni accents). */
+const DISPLAY: Record<string, string> = {
+  whatsapp: 'WhatsApp', instagram: 'Instagram', tiktok: 'TikTok', snapchat: 'Snapchat', facebook: 'Facebook',
+  messenger: 'Messenger', telegram: 'Telegram', youtube: 'YouTube', spotify: 'Spotify', netflix: 'Netflix',
+  'prime video': 'Prime Video', safari: 'Safari', messages: 'Messages', photos: 'Photos', gmail: 'Gmail',
+  'google maps': 'Google Maps', chrome: 'Chrome', discord: 'Discord', podcasts: 'Podcasts', musique: 'Musique',
+  twitch: 'Twitch', bereal: 'BeReal', capcut: 'CapCut', paypal: 'PayPal', linkedin: 'LinkedIn', pinterest: 'Pinterest',
+  reddit: 'Reddit', 'clash royale': 'Clash Royale', 'clash of clans': 'Clash of Clans', roblox: 'Roblox',
+  minecraft: 'Minecraft', fortnite: 'Fortnite', 'pokemon go': 'Pokémon GO', 'brawl stars': 'Brawl Stars',
+  'genshin impact': 'Genshin Impact', google: 'Google', outlook: 'Outlook', amazon: 'Amazon', vinted: 'Vinted',
+  leboncoin: 'Leboncoin', x: 'X', ios: 'iOS',
+};
+
+function levenshtein(a: string, b: string): number {
+  const prev = Array.from({ length: b.length + 1 }, (_, i) => i);
+  for (let i = 1; i <= a.length; i++) {
+    let diag = prev[0];
+    prev[0] = i;
+    for (let j = 1; j <= b.length; j++) {
+      const tmp = prev[j];
+      prev[j] = Math.min(prev[j] + 1, prev[j - 1] + 1, diag + (a[i - 1] === b[j - 1] ? 0 : 1));
+      diag = tmp;
+    }
+  }
+  return prev[b.length];
+}
+
+const titleCase = (s: string) => s.replace(/\b\p{L}/gu, (c) => c.toUpperCase());
+
+/**
+ * Nom propre d'une app : « TikKTok » → « TikTok », « Discore » → « Discord ».
+ * Un nom qui n'est proche d'aucune app connue est rendu tel quel.
+ */
+export function canonicalName(name: string): string {
+  const n = normalizeName(name);
+  if (!n) return name;
+  const exact = KNOWN.some((a) => a.keys.includes(n));
+  if (exact) return DISPLAY[n] ?? name;
+  if (n.length < 5) return name;
+  let best: { key: string; d: number } | undefined;
+  for (const app of KNOWN) {
+    for (const key of app.keys) {
+      if (key.length < 5) continue;
+      const d = levenshtein(n, key);
+      const limit = key.length >= 9 ? 2 : 1;
+      if (d <= limit && (!best || d < best.d)) best = { key, d };
+    }
+  }
+  return best ? (DISPLAY[best.key] ?? titleCase(best.key)) : name;
+}

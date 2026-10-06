@@ -67,3 +67,13 @@ export function parseSizeInput(input: string): number | null {
   if (!m) return null;
   return toBytes(m[1], m[2]);
 }
+
+/** Valeur telle qu'iOS l'affiche : deux décimales en Go (43,01 Go), une en Mo (972,2 Mo). Sert à pré-remplir les champs à corriger. */
+export function formatExact(bytes: number): string {
+  const fmt = (v: number, d: number) => v.toLocaleString('fr-FR', { maximumFractionDigits: d, minimumFractionDigits: 0 });
+  if (bytes >= 1e12) return `${fmt(bytes / 1e12, 2)} To`;
+  if (bytes >= 1e9) return `${fmt(bytes / 1e9, 2)} Go`;
+  if (bytes >= 1e6) return `${fmt(bytes / 1e6, 1)} Mo`;
+  if (bytes >= 1e3) return `${fmt(bytes / 1e3, 0)} Ko`;
+  return `${bytes} o`;
+}

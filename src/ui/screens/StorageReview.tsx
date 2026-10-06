@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { formatBytes, parseSizeInput } from '../../core/bytes';
+import { formatBytes, formatExact, parseSizeInput } from '../../core/bytes';
 import type { ParsedStorage } from '../../core/ocrParse';
 import { Sheet } from '../components/Sheet';
 import { Disclosure, Note } from '../components/Bits';
@@ -32,11 +32,11 @@ let keySeq = 0;
 /** Vérification des valeurs lues par l'OCR : on corrige à la main ce qui est faux avant d'enregistrer. */
 export function StorageReview({ draft, onSave, onClose }: { draft: Draft; onSave: (r: ReviewResult) => void; onClose: () => void }) {
   const [rows, setRows] = useState<Row[]>(() => [
-    ...draft.parsed.unnamed.map((b) => ({ key: ++keySeq, name: '', size: formatBytes(b), unnamed: true })),
-    ...draft.parsed.apps.map((a) => ({ key: ++keySeq, name: a.name, size: formatBytes(a.bytes), lastUsed: a.lastUsed })),
+    ...draft.parsed.unnamed.map((b) => ({ key: ++keySeq, name: '', size: formatExact(b), unnamed: true })),
+    ...draft.parsed.apps.map((a) => ({ key: ++keySeq, name: a.name, size: formatExact(a.bytes), lastUsed: a.lastUsed })),
   ]);
-  const [used, setUsed] = useState(draft.parsed.usedBytes ? formatBytes(draft.parsed.usedBytes) : '');
-  const [total, setTotal] = useState(draft.parsed.totalBytes ? formatBytes(draft.parsed.totalBytes) : '');
+  const [used, setUsed] = useState(draft.parsed.usedBytes ? formatExact(draft.parsed.usedBytes) : '');
+  const [total, setTotal] = useState(draft.parsed.totalBytes ? formatExact(draft.parsed.totalBytes) : '');
 
   const parsedRows = rows.map((r) => ({ ...r, bytes: parseSizeInput(r.size) }));
   const invalid = parsedRows.filter((r) => r.name.trim() && r.bytes === null);
