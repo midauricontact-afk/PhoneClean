@@ -1,0 +1,533 @@
+/* ==========================================================================
+   PhoneClean — compléments au style de base (carte, cases à cocher, miniatures…)
+   ========================================================================== */
+
+:root {
+  --good: #1f9d55;
+  --bad: #d64545;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --good: #34d399;
+    --bad: #ff6b6b;
+  }
+}
+:root[data-theme='dark'] {
+  --good: #34d399;
+  --bad: #ff6b6b;
+}
+
+.good {
+  color: var(--good);
+}
+.bad {
+  color: var(--bad);
+}
+.spread {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.splash-inline {
+  min-height: 200px;
+}
+
+.tabbar button span {
+  font-size: 10px;
+}
+
+.big-number .of {
+  font-size: 18px;
+  font-weight: 500;
+}
+.big-number.good {
+  color: var(--good);
+}
+
+.home-card {
+  cursor: pointer;
+}
+.home-card p {
+  margin: 4px 0 0;
+}
+
+.stats {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  margin: 8px 0;
+}
+.stat,
+.stats > div {
+  display: flex;
+  flex-direction: column;
+}
+.stat strong,
+.stats strong {
+  font-size: 17px;
+}
+.stat span,
+.stats span {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* Barre d'utilisation ------------------------------------------------- */
+.usage {
+  display: flex;
+  height: 10px;
+  border-radius: 5px;
+  overflow: hidden;
+  background: var(--card-2);
+  margin: 10px 0 6px;
+}
+.usage > div {
+  height: 100%;
+  min-width: 2px;
+}
+.legend {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin: 6px 0;
+  padding: 0;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+.legend i {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  margin-right: 5px;
+}
+
+/* Carte proportionnelle ----------------------------------------------- */
+.treemap {
+  position: relative;
+  width: 100%;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--card-2);
+  margin-bottom: 12px;
+}
+.treemap.empty-map {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 100 / 60;
+  color: var(--muted);
+  text-align: center;
+  padding: 16px;
+}
+.tm-cell {
+  position: absolute;
+  border: 1.5px solid var(--bg);
+  border-radius: 6px;
+  color: #fff;
+  text-align: left;
+  overflow: hidden;
+  padding: 0;
+  transition: filter 0.15s;
+}
+.tm-cell:active {
+  filter: brightness(0.85);
+}
+.tm-label {
+  display: flex;
+  flex-direction: column;
+  padding: 5px 6px;
+  font-size: 10.5px;
+  line-height: 1.2;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+  height: 100%;
+}
+.tm-label b {
+  font-weight: 650;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tm-label.big {
+  font-size: 13px;
+  padding: 8px;
+}
+.tm-label.big b {
+  white-space: normal;
+}
+.dot-color {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.dot-color.big {
+  width: 14px;
+  height: 14px;
+}
+
+/* Listes ------------------------------------------------------------------ */
+.row-btn {
+  width: 100%;
+  text-align: left;
+}
+.row-btn + .row-btn,
+.row + .row-btn,
+.row-btn + .row {
+  border-top: 0.5px solid var(--sep);
+}
+.row-end.col {
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0;
+}
+.check-row {
+  cursor: pointer;
+}
+.delta {
+  font-weight: 650;
+  font-size: 14px;
+  color: var(--muted);
+}
+.delta.good {
+  color: var(--good);
+}
+.delta.bad {
+  color: var(--bad);
+}
+.changes {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  font-size: 14px;
+}
+.changes li {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 3px 0;
+}
+.card.compare.good {
+  border: 1.5px solid color-mix(in srgb, var(--good) 45%, transparent);
+}
+.crumbs {
+  font-size: 14px;
+  margin-bottom: 8px;
+  color: var(--muted);
+}
+.crumbs button {
+  color: var(--accent);
+}
+.crumbs button.on {
+  color: var(--text);
+  font-weight: 650;
+}
+.chip-count {
+  display: inline-block;
+  min-width: 18px;
+  padding: 0 5px;
+  margin-left: 4px;
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--text) 12%, transparent);
+  font-size: 12px;
+  text-align: center;
+}
+.chip.active .chip-count {
+  background: rgba(255, 255, 255, 0.28);
+}
+.chip {
+  --cat: var(--accent);
+}
+
+/* Cases à cocher ---------------------------------------------------------- */
+.check {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid var(--gray);
+  background: transparent;
+  flex-shrink: 0;
+  position: relative;
+  cursor: pointer;
+  margin: 0;
+}
+.check:checked {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.check:checked::after {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 2px;
+  width: 6px;
+  height: 11px;
+  border: solid #fff;
+  border-width: 0 2.5px 2.5px 0;
+  transform: rotate(45deg);
+}
+.check.overlay {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: rgba(0, 0, 0, 0.35);
+  border-color: #fff;
+}
+.check.overlay:checked {
+  background: var(--accent);
+}
+
+/* Notes, blocs dépliables ------------------------------------------------ */
+.note {
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 13.5px;
+  margin: 0 0 12px;
+  background: var(--accent-soft);
+}
+.note.warn {
+  background: color-mix(in srgb, var(--orange) 18%, transparent);
+}
+.disclosure {
+  background: var(--card);
+  border-radius: var(--radius);
+  margin-bottom: 12px;
+  box-shadow: var(--shadow);
+}
+.disclosure > summary {
+  padding: 12px 16px;
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+}
+.disclosure > summary::-webkit-details-marker {
+  display: none;
+}
+.disclosure[open] > summary {
+  border-bottom: 0.5px solid var(--sep);
+}
+.disclosure-body {
+  padding: 8px 16px 14px;
+}
+.steps,
+.tips-list,
+.how {
+  padding-left: 20px;
+  margin: 6px 0;
+  font-size: 14.5px;
+}
+.steps li,
+.tips-list li,
+.how li {
+  margin: 6px 0;
+}
+.how {
+  font-size: 13.5px;
+  color: var(--muted);
+  margin-left: 30px;
+}
+.raw-text {
+  white-space: pre-wrap;
+  font-size: 11.5px;
+  background: var(--card-2);
+  border-radius: 8px;
+  padding: 8px;
+  max-height: 180px;
+  overflow: auto;
+}
+
+/* Formulaires --------------------------------------------------------------- */
+.text-input.invalid {
+  border-color: var(--red);
+}
+.field-row {
+  display: flex;
+  gap: 10px;
+}
+.field-row label {
+  flex: 1;
+}
+.edit-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.edit-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.edit-row .text-input {
+  margin: 0;
+  min-width: 0;
+}
+.edit-row .text-input.size {
+  max-width: 96px;
+}
+
+/* Nettoyage guidé ------------------------------------------------------------- */
+.guide-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.guide {
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+}
+.guide.complete {
+  opacity: 0.7;
+}
+.guide-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 16px;
+  text-align: left;
+}
+.chev {
+  font-size: 22px;
+  color: var(--muted);
+  transition: transform 0.2s;
+}
+.chev[data-open='true'] {
+  transform: rotate(90deg);
+}
+.guide > p {
+  padding: 0 16px;
+}
+.step-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 16px 12px;
+}
+.step-list > li {
+  padding: 10px 0;
+  border-top: 0.5px solid var(--sep);
+}
+.step-list > li.done b {
+  text-decoration: line-through;
+  color: var(--muted);
+}
+.step-check {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  cursor: pointer;
+}
+
+/* Photos ---------------------------------------------------------------------- */
+.group {
+  padding: 12px;
+}
+.thumbs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 10px 0 2px;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.thumb-cell {
+  position: relative;
+  flex-shrink: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  outline: 3px solid transparent;
+  background: var(--card-2);
+}
+.thumb-cell.sel {
+  outline-color: var(--accent);
+}
+.thumb-cell > button {
+  display: block;
+  line-height: 0;
+}
+.thumb {
+  object-fit: cover;
+  border-radius: 8px;
+  display: block;
+}
+.thumb.ph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--card-2);
+  font-size: 26px;
+}
+.keep {
+  position: absolute;
+  left: 4px;
+  top: 4px;
+  background: var(--good);
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 650;
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+.cell-size {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 8px 4px 2px;
+  font-size: 10.5px;
+  color: #fff;
+  text-align: center;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.6));
+}
+.preview {
+  width: 100%;
+  max-height: 50vh;
+  object-fit: contain;
+  border-radius: 12px;
+  background: var(--card-2);
+}
+.facts {
+  padding-left: 18px;
+  font-size: 14.5px;
+}
+.delete-list {
+  max-height: 34vh;
+  overflow-y: auto;
+}
+.actionbar {
+  position: sticky;
+  bottom: calc(var(--tabbar-h) + var(--safe-bottom) + 8px);
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: var(--card);
+  border-radius: 16px;
+  padding: 10px 14px;
+  margin: 14px 0;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2);
+  border: 0.5px solid var(--sep);
+}
+.actionbar-btns {
+  display: flex;
+  gap: 8px;
+}
+
+.settings a.setting {
+  text-decoration: none;
+}
+.settings a.setting.link {
+  color: var(--accent);
+}

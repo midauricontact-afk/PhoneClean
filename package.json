@@ -1,0 +1,32 @@
+{
+  "name": "phoneclean",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "PhoneClean — libérer de la place sur son iPhone (PWA) : carte du stockage, nettoyage guidé, photos, Google Drive.",
+  "scripts": {
+    "ocr:copy": "node scripts/copy-ocr.mjs",
+    "dev": "npm run ocr:copy && vite",
+    "build": "npm run ocr:copy && tsc -p tsconfig.json --noEmit && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "icons": "node scripts/gen-icons.mjs"
+  },
+  "dependencies": {
+    "@tesseract.js-data/fra": "^1.0.0",
+    "idb": "^8.0.3",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "tesseract.js": "^7.0.0",
+    "tesseract.js-core": "^7.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.2",
+    "vitest": "^5.0.3"
+  }
+}

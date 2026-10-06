@@ -1,0 +1,59 @@
+name: Déployer sur GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Tests
+        run: npm test
+
+      # Optionnel : l'ID client peut venir d'une variable du dépôt
+      # (Settings › Secrets and variables › Actions › Variables › GOOGLE_CLIENT_ID)
+      # au lieu du fichier .env.
+      - name: ID client Google (variable du dépôt)
+        env:
+          CID: ${{ vars.GOOGLE_CLIENT_ID }}
+        run: |
+          if [ -n "$CID" ]; then echo "VITE_GOOGLE_CLIENT_ID=$CID" > .env.production.local; fi
+
+      - name: Build
+        run: npm run build
+
+      - uses: actions/configure-pages@v6
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5
