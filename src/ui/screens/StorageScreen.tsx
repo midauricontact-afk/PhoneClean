@@ -37,7 +37,7 @@ export function StorageScreen() {
     setReading({ label: 'Préparation de la lecture…', ratio: 0 });
     try {
       const { results, merged } = await readScreenshots(files, (p) => setReading({ label: p.label, ratio: (p.index + p.ratio) / p.total }));
-      setDraft({ parsed: merged, texts: results.map((r) => r.text) });
+      setDraft({ parsed: merged, texts: results.map((r) => r.text), images: files.map((f) => URL.createObjectURL(f)) });
     } catch (e) {
       toast(`Lecture impossible : ${e instanceof Error ? e.message : String(e)}`, 'error');
     } finally {
@@ -45,10 +45,15 @@ export function StorageScreen() {
     }
   };
 
+  const closeDraft = () => {
+    draft?.images.forEach((u) => URL.revokeObjectURL(u));
+    setDraft(null);
+  };
+
   const save = async (r: ReviewResult) => {
     const before = latest;
     const snap = await saveSnapshot(r);
-    setDraft(null);
+    closeDraft();
     if (before) {
       const d = diffSnapshots(before, snap);
       toast(d.gained > 0 ? `Bravo : ${formatBytes(d.gained)} gagnés depuis ta dernière capture` : 'Capture enregistrée', 'ok');
@@ -220,7 +225,7 @@ export function StorageScreen() {
         </>
       )}
 
-      {draft && <StorageReview draft={draft} onClose={() => setDraft(null)} onSave={(r) => void save(r)} />}
+      {draft && <StorageReview draft={draft} onClose={closeDraft} onSave={(r) => void save(r)} />}
 
       {picked && (
         <Sheet title={picked.name} onClose={() => setSelected(null)}>

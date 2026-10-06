@@ -98,6 +98,12 @@ export function matchApp(name: string): AppMatch {
   return { guideId: '', category: 'other', known: false };
 }
 
+/** Le nom correspond exactement à une app connue (« Instagram », pas « KDE Instagram »). */
+export function isExactKnown(name: string): boolean {
+  const n = normalizeName(name);
+  return KNOWN.some((app) => app.keys.includes(n));
+}
+
 export function categoryOf(name: string): AppCategory {
   return matchApp(name).category;
 }

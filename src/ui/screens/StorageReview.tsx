@@ -10,11 +10,15 @@ interface Row {
   name: string;
   size: string;
   lastUsed?: string;
+  /** Taille lue sans nom lisible : à nommer ou à retirer. */
+  unnamed?: boolean;
 }
 
 export interface Draft {
   parsed: ParsedStorage;
   texts: string[];
+  /** Adresses locales des captures importées, pour comparer avec ce qui a été lu. */
+  images: string[];
 }
 
 export interface ReviewResult {
@@ -27,9 +31,10 @@ let keySeq = 0;
 
 /** Vérification des valeurs lues par l'OCR : on corrige à la main ce qui est faux avant d'enregistrer. */
 export function StorageReview({ draft, onSave, onClose }: { draft: Draft; onSave: (r: ReviewResult) => void; onClose: () => void }) {
-  const [rows, setRows] = useState<Row[]>(() =>
-    draft.parsed.apps.map((a) => ({ key: ++keySeq, name: a.name, size: formatBytes(a.bytes), lastUsed: a.lastUsed })),
-  );
+  const [rows, setRows] = useState<Row[]>(() => [
+    ...draft.parsed.unnamed.map((b) => ({ key: ++keySeq, name: '', size: formatBytes(b), unnamed: true })),
+    ...draft.parsed.apps.map((a) => ({ key: ++keySeq, name: a.name, size: formatBytes(a.bytes), lastUsed: a.lastUsed })),
+  ]);
   const [used, setUsed] = useState(draft.parsed.usedBytes ? formatBytes(draft.parsed.usedBytes) : '');
   const [total, setTotal] = useState(draft.parsed.totalBytes ? formatBytes(draft.parsed.totalBytes) : '');
 
@@ -40,6 +45,7 @@ export function StorageReview({ draft, onSave, onClose }: { draft: Draft; onSave
   const totalBytes = total.trim() ? parseSizeInput(total) : null;
   const headerInvalid = (used.trim() && usedBytes === null) || (total.trim() && totalBytes === null);
   const sum = valid.reduce((s, r) => s + (r.bytes ?? 0), 0);
+  const toName = rows.filter((r) => r.unnamed && !r.name.trim()).length;
 
   const update = (key: number, patch: Partial<Row>) => setRows((rs) => rs.map((r) => (r.key === key ? { ...r, ...patch } : r)));
 
@@ -49,6 +55,21 @@ export function StorageReview({ draft, onSave, onClose }: { draft: Draft; onSave
         L’OCR peut se tromper : compare avec ta capture et corrige les noms ou les tailles. Rien n’est enregistré tant que tu ne
         touches pas « Enregistrer ».
       </p>
+
+      {toName > 0 && (
+        <Note tone="warn">
+          <b>{toName} ligne{toName > 1 ? 's' : ''} sans nom lisible</b> (en haut de la liste, nom vide). Regarde ta capture ci-dessous : écris le nom de l’app
+          correspondante, ou retire la ligne avec ✕ si ce n’est pas une app. Les lignes sans nom ne sont pas enregistrées.
+        </Note>
+      )}
+
+      {draft.images.length > 0 && (
+        <Disclosure title="🖼️ Voir mes captures pour comparer">
+          {draft.images.map((src, i) => (
+            <img key={i} src={src} alt={`Capture ${i + 1}`} className="preview tall" />
+          ))}
+        </Disclosure>
+      )}
 
       {draft.parsed.warnings.map((w) => (
         <Note key={w} tone="warn">
@@ -76,7 +97,7 @@ export function StorageReview({ draft, onSave, onClose }: { draft: Draft; onSave
           const bad = r.name.trim() && parseSizeInput(r.size) === null;
           return (
             <div key={r.key} className="edit-row">
-              <input className="text-input" value={r.name} aria-label="Nom de l’app" placeholder="Nom" onChange={(e) => update(r.key, { name: e.target.value })} />
+              <input className={`text-input${r.unnamed && !r.name.trim() ? ' needs-name' : ''}`} value={r.name} aria-label="Nom de l’app" placeholder={r.unnamed ? 'Nom ?' : 'Nom'} onChange={(e) => update(r.key, { name: e.target.value })} />
               <input className={`text-input size${bad ? ' invalid' : ''}`} value={r.size} aria-label="Taille" placeholder="1,2 Go" onChange={(e) => update(r.key, { size: e.target.value })} />
               <button className="icon-btn" aria-label={`Retirer ${r.name}`} onClick={() => setRows((rs) => rs.filter((x) => x.key !== r.key))}>
                 <IconClose width={18} height={18} />

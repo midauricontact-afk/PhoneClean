@@ -1,4 +1,4 @@
-import { mergeParsed, parseStorageText, type ParsedStorage } from '../core/ocrParse';
+import { combinePasses, mergeParsed, parseStorageText, type ParsedStorage } from '../core/ocrParse';
 
 /**
  * Lecture des captures d'écran « Stockage iPhone » par OCR (Tesseract, en français).
@@ -35,6 +35,20 @@ export async function prepareForOcr(file: Blob): Promise<HTMLCanvasElement> {
   return canvas;
 }
 
+/** Part de la largeur occupée par les icônes des apps : on la masque pour que l'OCR ne les lise pas comme du texte. */
+const ICON_COLUMN = 0.14;
+
+function maskLeft(src: HTMLCanvasElement): HTMLCanvasElement {
+  const c = document.createElement('canvas');
+  c.width = src.width;
+  c.height = src.height;
+  const ctx = c.getContext('2d')!;
+  ctx.drawImage(src, 0, 0);
+  ctx.fillStyle = '#fff'; // après l'inversion éventuelle, le fond est toujours clair
+  ctx.fillRect(0, 0, Math.round(src.width * ICON_COLUMN), src.height);
+  return c;
+}
+
 export interface OcrResult {
   name: string;
   text: string;
@@ -65,8 +79,15 @@ export async function readScreenshots(files: File[], onProgress?: OcrProgress): 
     for (current = 0; current < files.length; current++) {
       report(`Lecture de la capture ${current + 1} sur ${files.length}…`, 0);
       const canvas = await prepareForOcr(files[current]);
-      const { data } = await worker.recognize(canvas);
-      results.push({ name: files[current].name, text: data.text, parsed: parseStorageText(data.text) });
+      // Passe 1 : icônes masquées (noms propres). Passe 2 : capture complète (en-tête, et filet de sécurité).
+      const rows = await worker.recognize(maskLeft(canvas));
+      report(`Lecture de la capture ${current + 1} sur ${files.length} (2e passe)…`, 0.5);
+      const whole = await worker.recognize(canvas);
+      results.push({
+        name: files[current].name,
+        text: `--- Lignes (colonne des icônes masquée) ---\n${rows.data.text}\n--- Capture complète ---\n${whole.data.text}`,
+        parsed: combinePasses(parseStorageText(rows.data.text), parseStorageText(whole.data.text)),
+      });
     }
     return { results, merged: mergeParsed(results.map((r) => r.parsed)) };
   } finally {

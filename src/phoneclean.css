@@ -531,3 +531,12 @@
 .settings a.setting.link {
   color: var(--accent);
 }
+
+.preview.tall {
+  max-height: none;
+  margin-bottom: 10px;
+}
+.text-input.needs-name {
+  border-color: var(--orange);
+  background: color-mix(in srgb, var(--orange) 14%, var(--card-2));
+}
